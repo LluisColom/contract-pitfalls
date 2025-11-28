@@ -1,0 +1,34 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+
+# Solidity compiler config
+solc_version = "0.8.20"
+optimizer = true
+optimizer_runs = 200
+via_ir = false
+
+# Testing configuration
+verbosity = 3
+fuzz_runs = 256
+ffi = false
+
+# RPC endpoints
+[rpc_endpoints]
+mainnet = "${ALCHEMY_URL}"
+
+# Formatter configuration
+[fmt]
+line_length = 100
+tab_width = 4
+bracket_spacing = true
+int_types = "long"
+multiline_func_header = "all"
+quote_style = "double"
+number_underscore = "thousands"
+
+# Documentation configuration
+[doc]
+out = "docs/generated"
+title = "Blockchain Security Analysis - MSc Project"

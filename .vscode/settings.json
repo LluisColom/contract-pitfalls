@@ -1,0 +1,27 @@
+{
+  "solidity.compileUsingRemoteVersion": "v0.8.20",
+  "solidity.formatter": "forge",
+  "solidity.defaultCompiler": "localFile",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "JuanBlanco.solidity",
+  "[solidity]": {
+    "editor.defaultFormatter": "JuanBlanco.solidity",
+    "editor.tabSize": 4
+  },
+  "files.associations": {
+    "*.sol": "solidity"
+  },
+  "files.exclude": {
+    "out/": true,
+    "cache/": true,
+    "**/node_modules": true
+  },
+  "search.exclude": {
+    "out/": true,
+    "cache/": true,
+    "lib/": true
+  },
+  "terminal.integrated.env.osx": {
+    "FOUNDRY_PROFILE": "default"
+  }
+}
