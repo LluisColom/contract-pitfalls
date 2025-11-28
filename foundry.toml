@@ -16,7 +16,7 @@ ffi = false
 
 # RPC endpoints
 [rpc_endpoints]
-mainnet = "${ALCHEMY_URL}"
+mainnet = "${INFURA_URL}"
 
 # Formatter configuration
 [fmt]
