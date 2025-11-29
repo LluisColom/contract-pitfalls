@@ -18,6 +18,7 @@ All exploits demonstrated with proof-of-concept implementations using Foundry an
 
 ## Quick Start
 To run the Reentrancy tests using Solidity 0.7.6 and 0.8.20:
+
 FOUNDRY_PROFILE=legacy forge test --match-contract ReentrancyTestv7 -vvv
 forge test --match-contract ReentrancyTestv8 -vvv
 
