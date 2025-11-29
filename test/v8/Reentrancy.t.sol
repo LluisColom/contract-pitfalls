@@ -52,7 +52,7 @@ contract ReentrancyTestv8 is Test {
         console.log("\n Attacker drained", (bankBalanceBefore - bankBalanceAfter) / 1e18, "ETH!");
 
         // Assertions
-        // assertEq(bankBalanceAfter, 0, "Bank should be drained");
+        assertEq(bankBalanceAfter, 0, "Bank should be drained");
         assertGt(attackerBalanceAfter, attackerBalanceBefore, "Attacker should profit");
     }
 }
