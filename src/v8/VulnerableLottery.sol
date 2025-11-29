@@ -1,0 +1,35 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract VulnerableLottery {
+    address[] public players;
+
+    function join() external payable {
+        require(msg.value == 1 ether, "Need 1 ETH");
+        players.push(msg.sender);
+    }
+
+    function random() public view returns (uint256) {
+        // Weak randomness — predictable BEFORE execution
+        return uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, msg.sender)));
+    }
+
+    function pickWinner() external returns (address winner) {
+        require(players.length > 0, "No players");
+        uint256 idx = random() % players.length;
+        winner = players[idx];
+
+        // send all ETH to winner
+        payable(winner).transfer(address(this).balance);
+
+        // reset
+        delete players;
+    }
+
+    // helper for tests
+    function getPlayers() external view returns (address[] memory) {
+        return players;
+    }
+
+    receive() external payable { }
+}
