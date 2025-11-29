@@ -37,5 +37,11 @@ forge test --match-contract ReentrancyTestv8 -vvv
 forge test --match-contract AccessControlTestv8 -vvv
 ```
 
+### Running WeakRandomness Test
+```bash
+# Solidity 0.8.20
+forge test --match-contract WeakRandomnessTestv8 -vvv
+```
+
 ## License
 MIT
