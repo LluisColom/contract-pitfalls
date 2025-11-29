@@ -1,24 +1,60 @@
+# =============================================================================
+# DEFAULT PROFILE - Solidity 0.8.20 (Modern)
+# =============================================================================
 [profile.default]
-src = "src"
+src = "src/v8"
 out = "out"
 libs = ["lib"]
+test = "test/v8"
+script = "script"
+cache_path = "cache"
 
-# Solidity compiler config
-solc_version = "0.8.20"
+# Compiler settings
+solc = "0.8.20"
+evm_version = "paris"
 optimizer = true
 optimizer_runs = 200
 via_ir = false
 
 # Testing configuration
 verbosity = 3
-fuzz_runs = 256
 ffi = false
+gas_limit = 9223372036854775807
+gas_reports = ["*"]
+
+# =============================================================================
+# LEGACY PROFILE - Solidity 0.7.6 (Historical)
+# =============================================================================
+[profile.legacy]
+src = "src/v7"
+out = "out-legacy"
+libs = ["lib"]
+test = "test/v7"
+script = "script"
+cache_path = "cache-legacy"
+
+# Compiler settings
+solc = "0.7.6"
+evm_version = "istanbul"
+optimizer = true
+optimizer_runs = 200
+via_ir = false
+
+# Testing configuration
+verbosity = 3
+ffi = false
+gas_limit = 9223372036854775807
+gas_reports = ["*"]
+
+# =============================================================================
+# SHARED CONFIGURATION (applies to all profiles)
+# =============================================================================
 
 # RPC endpoints
 [rpc_endpoints]
 mainnet = "${INFURA_URL}"
 
-# Formatter configuration
+# Code formatter
 [fmt]
 line_length = 100
 tab_width = 4
@@ -28,7 +64,7 @@ multiline_func_header = "all"
 quote_style = "double"
 number_underscore = "thousands"
 
-# Documentation configuration
+# Documentation
 [doc]
 out = "docs/generated"
 title = "Blockchain Security Analysis - MSc Project"

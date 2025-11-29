@@ -2,9 +2,9 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import "../src/VulnerableBank.sol";
+import "../../src/v8/VulnerableBank.sol";
 
-contract ReentrancyTest is Test {
+contract ReentrancyTestv8 is Test {
     VulnerableBank public bank;
     ReentrancyAttacker public attacker;
 
