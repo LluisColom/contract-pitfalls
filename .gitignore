@@ -1,6 +1,8 @@
 # Compiler files
 cache/
 out/
+cache-legacy/
+out-legacy/
 
 # Ignores development broadcast logs
 !/broadcast
