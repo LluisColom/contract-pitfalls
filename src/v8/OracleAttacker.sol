@@ -174,7 +174,7 @@ contract OracleAttacker {
 
         uint256 profit = currentDAI - amountOwing;
         console.log("  Repaying flash loan: ", amountOwing / 1e18, "DAI");
-        console.log("  Profit remaining:", profit / 1e18, "DAI");
+        console.log("  Profit remaining:", profit / 1e18, "DAI\n");
 
         return true;
     }

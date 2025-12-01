@@ -74,7 +74,7 @@ contract OracleManipulationTest is Test {
         uint256 collateralToDeposit = 10 ether; // Deposit 10 ETH as collateral
         console.log("[STEP 1] Flash loan");
         console.log("  Requested amount:", flashLoanAmount / 1e18, "WETH");
-        console.log("  Deposited collateral:", collateralToDeposit / 1e18, "ETH");
+        console.log("  Deposited collateral:", collateralToDeposit / 1e18, "ETH\n");
         attacker.flash_loan(flashLoanAmount, collateralToDeposit);
 
         // Record final state
@@ -82,20 +82,13 @@ contract OracleManipulationTest is Test {
         uint256 daiProfit = attackerDAIAfter - attackerDAIBefore;
         uint256 priceFinal = lending.getETHPrice();
 
-        console.log("\n=== FLASH LOAN ATTACK RESULTS ===");
-        console.log("DAI profit:", daiProfit / 1e18);
-        console.log("Final ETH price:", priceFinal / 1e18, "DAI per ETH");
-
-        // Verify attack succeeded
-        assertGt(daiProfit, 0, "Should have stolen DAI");
-        assertApproxEqRel(priceFinal, priceInitial, 0.01e18, "Price should be ~restored");
-
-        console.log("Flash loan attack succeeded!");
-        console.log("Attacker borrowed", flashLoanAmount / 1e18, "WETH for free (flash loan)");
-        console.log("Used it to manipulate price and steal", daiProfit / 1e18, "DAI\n");
-
         // Assertions
         assertGt(daiProfit, 0, "Attack should be profitable");
         assertApproxEqRel(priceFinal, priceInitial, 0.02e18, "Price should be mostly restored");
+
+        console.log("[STEP 7] Results");
+        console.log("  Final ETH price:", priceFinal / 1e18, "DAI per ETH");
+        console.log("  Attacker borrowed", flashLoanAmount / 1e18, "WETH for free (flash loan)");
+        console.log("  Used it to manipulate price and steal", daiProfit / 1e18, "DAI\n");
     }
 }

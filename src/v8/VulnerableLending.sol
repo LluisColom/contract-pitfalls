@@ -55,25 +55,25 @@ contract VulnerableLending {
     }
 
     function borrow(uint256 daiAmount) external {
-        console.log("\n=== BORROW REQUEST ===");
-        console.log("User:", msg.sender);
-        console.log("Wants to borrow:", daiAmount / 1e18, "DAI");
-        console.log("User's collateral:", collateral[msg.sender] / 1e18, "ETH");
+        console.log("  ************ BORROW REQUEST ************");
+        console.log("  User:", msg.sender);
+        console.log("  Wants to borrow:", daiAmount / 1e18, "DAI");
+        console.log("  User's collateral:", collateral[msg.sender] / 1e18, "ETH");
 
         // Get current ETH price (VULNERABLE!)
         uint256 ethPrice = getETHPrice();
 
         // Calculate collateral value in DAI
         uint256 collateralValue = (collateral[msg.sender] * ethPrice) / 1e18;
-        console.log("Collateral value:", collateralValue / 1e18, "DAI");
+        console.log("  Collateral value:", collateralValue / 1e18, "DAI");
 
         // Calculate max borrow (account for existing borrows)
         uint256 maxBorrow = (collateralValue * 100) / COLLATERAL_RATIO;
-        console.log("Max can borrow:", maxBorrow / 1e18, "DAI");
-        console.log("Already borrowed:", borrowed[msg.sender] / 1e18, "DAI");
+        console.log("  Max can borrow:", maxBorrow / 1e18, "DAI");
+        console.log("  Already borrowed:", borrowed[msg.sender] / 1e18, "DAI");
 
         uint256 availableToBorrow = maxBorrow - borrowed[msg.sender];
-        console.log("Available to borrow:", availableToBorrow / 1e18, "DAI");
+        console.log("  Available to borrow:", availableToBorrow / 1e18, "DAI");
 
         require(daiAmount <= availableToBorrow, "Insufficient collateral");
 
@@ -83,7 +83,8 @@ contract VulnerableLending {
         // Transfer DAI to borrower
         require(IERC20(DAI).transfer(msg.sender, daiAmount), "DAI transfer failed");
 
-        console.log("Borrowed", daiAmount / 1e18, "DAI");
+        console.log("  Borrowed", daiAmount / 1e18, "DAI");
+        console.log("  ****************************************\n");
 
         emit Borrowed(msg.sender, daiAmount);
     }
