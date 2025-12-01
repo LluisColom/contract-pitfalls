@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 import "../../src/v8/VulnerableLottery.sol";
 
-contract WeakRandomnessTestv8 is Test {
+contract WeakRandomness is Test {
     VulnerableLottery lottery;
     address victim;
     address attacker;

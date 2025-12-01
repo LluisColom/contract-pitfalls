@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 import "../../src/v8/Vault.sol";
 
-contract AccessControlTestv8 is Test {
+contract AccessControl is Test {
     Vault public vault;
     address victim;
     address attacker;
@@ -23,7 +23,7 @@ contract AccessControlTestv8 is Test {
         vm.stopPrank();
     }
 
-    function testAccessControlViolation() public {
+    function testAccessControlAttack() public {
         console.log("=== ACCESS CONTROL ATTACK DEMO ===\n");
 
         uint256 balanceBefore = attacker.balance;

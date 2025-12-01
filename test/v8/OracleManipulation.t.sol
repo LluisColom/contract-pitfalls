@@ -6,7 +6,7 @@ import "../../src/v8/VulnerableLending.sol";
 import "../../src/v8/OracleAttacker.sol";
 import "../../src/interfaces/IERC20.sol";
 
-contract OracleManipulationTest is Test {
+contract OracleManipulation is Test {
     VulnerableLending public lending;
     OracleAttacker public attacker;
 
@@ -52,7 +52,7 @@ contract OracleManipulationTest is Test {
         console.log("Fund with:", address(attacker).balance / 1e18, "ETH");
     }
 
-    function testFlashLoanOracleManipulation() public {
+    function testOracleManipulationAttack() public {
         console.log("\n=== FLASH LOAN ORACLE MANIPULATION ===\n");
         console.log("Attacker uses Aave flash loan for massive manipulation");
         console.log("This is how real attacks work in production\n");
