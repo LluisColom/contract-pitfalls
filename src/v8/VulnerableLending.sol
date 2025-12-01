@@ -32,11 +32,6 @@ contract VulnerableLending {
         require(
             uniswapPair.token0() == _dai || uniswapPair.token1() == _dai, "Pair must contain DAI"
         );
-
-        console.log("VulnerableLending deployed");
-        console.log("  Uniswap Pair:", _uniswapPair);
-        console.log("  WETH:", WETH);
-        console.log("  DAI:", DAI);
     }
 
     // VULNERABILITY: Uses spot price from Uniswap
@@ -50,8 +45,6 @@ contract VulnerableLending {
 
         // Price formula: price = reserve_DAI / reserve_WETH DAI/ETH
         uint256 price = (uint256(reserve0) * 1e18) / uint256(reserve1);
-        console.log("Current ETH price from Uniswap:", price / 1e18, "DAI");
-
         return price;
     }
 

@@ -29,9 +29,6 @@ contract OracleAttacker {
         WETH = _weth;
         DAI = _dai;
         owner = msg.sender;
-
-        console.log("OracleAttacker deployed");
-        console.log("  Owner:", owner);
     }
 
     /**

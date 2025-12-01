@@ -26,24 +26,21 @@ contract OracleManipulationTest is Test {
         console.log("Fork block:", block.number);
 
         // Check pair reserves
-        IUniswapV2Pair pair = IUniswapV2Pair(WETH_DAI_PAIR);
-        console.log("Token0:", pair.token0());
-        console.log("Token1:", pair.token1());
-
-        (uint112 reserve0, uint112 reserve1,) = pair.getReserves();
-        console.log("Pair reserve0:", uint256(reserve0) / 1e18);
-        console.log("Pair reserve1:", uint256(reserve1) / 1e18);
+        (uint112 reserve0, uint112 reserve1,) = IUniswapV2Pair(WETH_DAI_PAIR).getReserves();
+        console.log("DAI reserves:", uint256(reserve0) / 1e18);
+        console.log("WETH reserves:", uint256(reserve1) / 1e18);
 
         // Deploy lending protocol
         lending = new VulnerableLending(WETH_DAI_PAIR, WETH, DAI);
+        console.log("VulnerableLending deployed");
 
         // Fund lending with DAI (for borrowing)
         deal(DAI, address(lending), 1_000_000 ether); // 1M DAI
-        console.log("Lending funded with:", IERC20(DAI).balanceOf(address(lending)) / 1e18, "DAI");
+        console.log("Fund with:", IERC20(DAI).balanceOf(address(lending)) / 1e18, "DAI");
 
         // Check initial price
         uint256 initialPrice = lending.getETHPrice();
-        console.log("Initial ETH price:", initialPrice / 1e18, "DAI per ETH\n");
+        console.log("Initial ETH price:", initialPrice / 1e18, "DAI per ETH");
 
         // Fund attacker
         vm.deal(attackerEOA, 100 ether);
@@ -52,10 +49,11 @@ contract OracleManipulationTest is Test {
         vm.prank(attackerEOA);
         attacker =
             new OracleAttacker(payable(address(lending)), UNISWAP_ROUTER, AAVE_POOL, WETH, DAI);
+        console.log("OracleAttacker deployed");
 
         // Fund attacker contract with ETH for collateral
         vm.deal(address(attacker), 20 ether);
-        console.log("Attacker funded with:", address(attacker).balance / 1e18, "ETH");
+        console.log("Fund with:", address(attacker).balance / 1e18, "ETH");
     }
 
     function testFlashLoanOracleManipulation() public {
@@ -67,17 +65,17 @@ contract OracleManipulationTest is Test {
         uint256 priceInitial = lending.getETHPrice();
         uint256 attackerDAIBefore = IERC20(DAI).balanceOf(address(attacker));
 
-        console.log("\n[STEP 0] Initial state");
-        console.log("  ETH price:", priceInitial / 1e18, "DAI");
-        console.log("  Attacker DAI balance:", attackerDAIBefore / 1e18);
+        console.log("[STEP 0] Initial state");
+        console.log("  Price reported by Oracle:", priceInitial / 1e18, "WETH/DAI");
+        console.log("  Attacker DAI balance:", attackerDAIBefore / 1e18, "DAI\n");
 
         // Prepare flash loan parameters
         uint256 flashLoanAmount = 500_000 ether; // Borrow 500,000 WETH
         uint256 collateralToDeposit = 10 ether; // Deposit 10 ETH as collateral
 
-        console.log("\nFlash loan parameters:");
-        console.log("  Flash loan amount:", flashLoanAmount / 1e18, "WETH");
-        console.log("  Collateral to deposit:", collateralToDeposit / 1e18, "ETH");
+        console.log("[STEP 1] Flash loan");
+        console.log("  Requested amount:", flashLoanAmount / 1e18, "WETH");
+        console.log("  Deposited collateral:", collateralToDeposit / 1e18, "ETH");
 
         // Setup flash loan call
         address[] memory assets = new address[](1);
