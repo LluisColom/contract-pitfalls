@@ -42,9 +42,6 @@ contract OracleManipulationTest is Test {
         uint256 initialPrice = lending.getETHPrice();
         console.log("Initial ETH price:", initialPrice / 1e18, "DAI per ETH");
 
-        // Fund attacker
-        vm.deal(attackerEOA, 100 ether);
-
         // Deploy attacker contract
         vm.prank(attackerEOA);
         attacker =
