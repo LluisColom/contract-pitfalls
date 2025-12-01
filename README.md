@@ -49,5 +49,11 @@ forge test --match-contract WeakRandomnessTestv8 -vvv
 forge test --fork-url $INFURA_URL --match-test testFlashLoanOracleManipulation -vvv
 ```
 
+### Running MEV Test
+```bash
+# Solidity 0.8.20
+forge test --fork-url $INFURA_URL --match-test testSandwichAttack -vvv
+```
+
 ## License
 MIT
