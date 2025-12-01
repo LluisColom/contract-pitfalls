@@ -43,5 +43,11 @@ forge test --match-contract AccessControlTestv8 -vvv
 forge test --match-contract WeakRandomnessTestv8 -vvv
 ```
 
+### Running OracleManipulation Test
+```bash
+# Solidity 0.8.20
+forge test --fork-url $INFURA_URL --match-test testFlashLoanOracleManipulation -vvv
+```
+
 ## License
 MIT
