@@ -23,7 +23,6 @@ contract OracleManipulationTest is Test {
         // Fork mainnet at a specific block for reproducibility
         console.log("\n=== SETUP (Mainnet Fork) ===");
         vm.createSelectFork(vm.envString("INFURA_URL"), 23_000_000);
-        console.log("Fork block:", block.number);
 
         // Check pair reserves
         (uint112 reserve0, uint112 reserve1,) = IUniswapV2Pair(WETH_DAI_PAIR).getReserves();
