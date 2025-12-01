@@ -56,12 +56,15 @@ contract SandwichBot {
         private
         returns (uint256)
     {
+        // Approve router
         IERC20(tokenIn).approve(address(router), amountIn);
 
+        // Build path
         address[] memory path = new address[](2);
         path[0] = tokenIn;
         path[1] = tokenOut;
 
+        // Execute swap
         uint256[] memory amounts = router.swapExactTokensForTokens(
             amountIn,
             0, // MEV bots accept any slippage for front-run and back-run
