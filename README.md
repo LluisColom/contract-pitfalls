@@ -6,15 +6,15 @@
 **Date:** 11/2025
 
 ## Overview
+Educational demonstrations of common Solidity vulnerabilities using Foundry.
 
-Comprehensive analysis of smart contract vulnerabilities in Solidity 0.8.x, including:
-- Reentrancy attacks
-- Access control vulnerabilities
-- Oracle manipulation
-- Delegatecall exploits
-- MEV (Miner Extractable Value) attacks
+## Vulnerabilities Covered
 
-All exploits demonstrated with proof-of-concept implementations using Foundry and mainnet forking.
+1. **Reentrancy** - The DAO-style attack with CEI pattern fix
+2. **Access Control** - Missing authorization checks
+3. **Weak Randomness** - Predictable on-chain entropy
+4. **Oracle Manipulation** - Flash loan + spot price exploitation
+5. **MEV (Miner Extractable Value) attacks** - 
 
 ## Quick Start
 Download Foundry: https://getfoundry.sh/introduction/installation/
