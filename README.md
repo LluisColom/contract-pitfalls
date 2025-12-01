@@ -34,25 +34,25 @@ forge test --match-contract ReentrancyTestv8 -vvv
 ### Running AccessControl Test
 ```bash
 # Solidity 0.8.20
-forge test --match-contract AccessControlTestv8 -vvv
+forge test --match-contract AccessControl -vvv
 ```
 
 ### Running WeakRandomness Test
 ```bash
 # Solidity 0.8.20
-forge test --match-contract WeakRandomnessTestv8 -vvv
+forge test --match-contract WeakRandomness -vvv
 ```
 
 ### Running OracleManipulation Test
 ```bash
 # Solidity 0.8.20
-forge test --fork-url $INFURA_URL --match-test testFlashLoanOracleManipulation -vvv
+forge test --fork-url $INFURA_URL --match-contract OracleManipulation -vvv
 ```
 
 ### Running MEV Test
 ```bash
 # Solidity 0.8.20
-forge test --fork-url $INFURA_URL --match-test testSandwichAttack -vvv
+forge test --fork-url $INFURA_URL --match-contract FrontRunning -vvv
 ```
 
 ## License
