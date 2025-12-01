@@ -5,7 +5,7 @@ pragma abicoder v2;
 import "forge-std/Test.sol";
 import "../../src/v7/VulnerableBank.sol";
 
-contract ReentrancyTestv7 is Test {
+contract ReentrancyV7 is Test {
     VulnerableBank public bank;
     ReentrancyAttacker public attacker;
 

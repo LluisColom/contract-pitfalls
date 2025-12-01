@@ -25,10 +25,10 @@ Use Solidity **0.7.6** (legacy profile) and **0.8.20**:
 
 ```bash
 # Solidity 0.7.6
-FOUNDRY_PROFILE=legacy forge test --match-contract ReentrancyTestv7 -vvv
+FOUNDRY_PROFILE=legacy forge test --match-contract ReentrancyV7 -vvv
 
 # Solidity 0.8.20
-forge test --match-contract ReentrancyTestv8 -vvv
+forge test --match-contract ReentrancyV8 -vvv
 ```
 
 ### Running AccessControl Test
