@@ -18,15 +18,11 @@ contract VulnerableTrader {
         address tokenIn,
         address tokenOut,
         uint256 amountIn,
-        uint256 minAmountOut // Often set too low or to 0!
+        uint256 minAmountOut // Minimum accepted (often set too low or to 0!)
     )
         external
         returns (uint256)
     {
-        console.log("  ************* VICTIM SWAP *************");
-        console.log("  Swapping: ", amountIn / 1e18, "tokens");
-        console.log("  Min output:", minAmountOut / 1e18);
-
         // Approve router
         IERC20(tokenIn).approve(address(router), amountIn);
 
@@ -40,7 +36,10 @@ contract VulnerableTrader {
             amountIn, minAmountOut, path, address(this), block.timestamp + 300
         );
 
-        console.log("  Received:", amounts[1] / 1e18, "tokens");
+        console.log("  ************* VICTIM SWAP *************");
+        console.log("  Input: ", amountIn / 1e18, "DAI");
+        console.log("  Min expected:", minAmountOut, "WETH");
+        console.log("  Received:", amounts[1] / 1e18, "WETH");
         console.log("  ***************************************\n");
         return amounts[1];
     }

@@ -22,10 +22,10 @@ contract SandwichBot {
         external
         returns (uint256)
     {
-        console.log("  ************** FRONT RUN **************");
-        console.log("  Bot front-running with:", amountIn / 1e18, "tokens");
-
         uint256 amountOut = _swapTokens(tokenIn, tokenOut, amountIn);
+        console.log("  ************** FRONT RUN **************");
+        console.log("  Input:", amountIn / 1e18, "DAI");
+        console.log("  Output:", amountOut / 1e18, "WETH");
         console.log("  ***************************************\n");
 
         return amountOut;
@@ -39,11 +39,11 @@ contract SandwichBot {
         external
         returns (uint256)
     {
-        console.log("  ************** BACK RUN ***************");
-        console.log("  Bot back-running with:", amountIn / 1e18, "tokens");
-        console.log("  ***************************************\n");
-
         uint256 amountOut = _swapTokens(tokenIn, tokenOut, amountIn);
+        console.log("  ************** BACK RUN ***************");
+        console.log("  Input:", amountIn / 1e18, "WETH");
+        console.log("  Output:", amountOut / 1e18, "DAI");
+        console.log("  ***************************************\n");
 
         return amountOut;
     }

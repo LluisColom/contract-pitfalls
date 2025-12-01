@@ -53,7 +53,7 @@ contract FrontRunning is Test {
 
         // Bot back-runs
         console.log("[STEP 3] Bot back-runs: Sell WETH for profit\n");
-        uint256 daiSold = bot.backRun(WETH, DAI, wethBought);
+        bot.backRun(WETH, DAI, wethBought);
 
         // Calculate profit
         uint256 finalBalance = IERC20(DAI).balanceOf(address(bot));
