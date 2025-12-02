@@ -4,16 +4,7 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 import "../../src/v8/VulnerableLottery.sol";
 import "../../src/v8/SafeLottery.sol";
-
-/**
- * @title MaliciousPlayer
- * @notice Joins lottery but rejects refunds to DoS the cancel() function
- */
-contract MaliciousPlayer {
-    receive() external payable {
-        revert("I refuse to accept refunds");
-    }
-}
+import "../../src/attackers/MaliciousPlayer.sol";
 
 contract DenialOfService is Test {
     uint256 constant PARTICIPANTS = 10;
