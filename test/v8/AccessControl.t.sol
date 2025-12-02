@@ -2,10 +2,10 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import "../../src/v8/Vault.sol";
+import "../../src/v8/VulnerableVault.sol";
 
 contract AccessControl is Test {
-    Vault public vault;
+    VulnerableVault public vault;
     address victim;
     address attacker;
 
@@ -15,7 +15,7 @@ contract AccessControl is Test {
 
         // Deploy vault as victim
         vm.startPrank(victim);
-        vault = new Vault();
+        vault = new VulnerableVault();
 
         // Victim deposits ETH into the vault
         vm.deal(victim, 10 ether);

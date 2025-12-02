@@ -1,6 +1,6 @@
 pragma solidity ^0.8.20;
 
-contract Vault {
+contract VulnerableVault {
     address public owner;
     uint256 public stored;
 
