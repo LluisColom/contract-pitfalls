@@ -10,7 +10,7 @@ contract VulnerableLottery {
     }
 
     function random() public view returns (uint256) {
-        // Weak randomness — predictable BEFORE execution
+        // VULNERABILITY: Weak randomness — predictable BEFORE execution
         return uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, msg.sender)));
     }
 
@@ -21,6 +21,22 @@ contract VulnerableLottery {
 
         // send all ETH to winner
         payable(winner).transfer(address(this).balance);
+
+        // reset
+        delete players;
+    }
+
+    function cancel() external {
+        require(players.length > 0, "No players to refund");
+
+        // VULNERABILITY: Unbounded loop - can run out of gas
+        for (uint256 i = 0; i < players.length; i++) {
+            address player = players[i];
+
+            // VULNERABILITY: Push pattern - one failure blocks all refunds
+            (bool success,) = player.call{ value: 1 ether }("");
+            require(success, "Refund failed");
+        }
 
         // reset
         delete players;
