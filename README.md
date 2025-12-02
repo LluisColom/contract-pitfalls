@@ -14,7 +14,8 @@ Educational demonstrations of common Solidity vulnerabilities using Foundry.
 2. **Access Control** - Missing authorization checks
 3. **Weak Randomness** - Predictable on-chain entropy
 4. **Oracle Manipulation** - Flash loan + spot price exploitation
-5. **MEV (Miner Extractable Value) attacks** - 
+5. **MEV (Miner Extractable Value) attacks** - Sandwich attack
+6. **Denial of Service** - Revert-based DoS and Unbounded Loop DoS
 
 ## Quick Start
 Download Foundry: https://getfoundry.sh/introduction/installation/
