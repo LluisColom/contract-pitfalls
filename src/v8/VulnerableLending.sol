@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/console.sol";
-import "../../src/v8/OracleAttacker.sol";
+import "../../src/attackers/OracleAttacker.sol";
 import "../interfaces/IUniswapV2Pair.sol";
 import "../interfaces/IERC20.sol";
 

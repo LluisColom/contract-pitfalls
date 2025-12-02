@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
 import "../../src/v8/VulnerableLending.sol";
-import "../../src/v8/OracleAttacker.sol";
+import "../../src/attackers/OracleAttacker.sol";
 import "../../src/interfaces/IERC20.sol";
 
 contract OracleManipulation is Test {
