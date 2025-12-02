@@ -55,5 +55,11 @@ forge test --fork-url $INFURA_URL --match-contract OracleManipulation -vvv
 forge test --fork-url $INFURA_URL --match-contract FrontRunning -vvv
 ```
 
+### Running DenialOfService Test
+```bash
+# Solidity 0.8.20
+forge test --fork-url $INFURA_URL --match-contract DenialOfService -vvv
+```
+
 ## License
 MIT
