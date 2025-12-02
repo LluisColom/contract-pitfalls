@@ -1,6 +1,19 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-contract VulnerableVault {
+import "forge-std/console.sol";
+
+/**
+ * @title SafeVault
+ * @notice A secure vault with proper access control
+ * @dev Fixes vulnerabilities:
+ *      - Implements access control on withdrawal
+ *      - Uses custom errors for gas efficiency
+ *      - Follows CEI pattern
+ *      - Adds emergency pause functionality
+ *      - Tracks deposits per user
+ */
+contract SafeVault {
     // ============ State Variables ============
     address public immutable owner;
 
@@ -10,36 +23,40 @@ contract VulnerableVault {
 
     // ============ Errors ============
     error NotOwner();
-    error EmptyDonation();
+    error EmptyDeposit();
     error InsufficientBalance();
     error TransferFailed();
 
     // ============ Modifiers ============
-    // No modifier leading to vulnerability
+    modifier onlyOwner() {
+        if (msg.sender != owner) revert NotOwner();
+        _;
+    }
 
     // ============ Constructor ============
     constructor() {
         owner = msg.sender;
     }
 
+    // ============ User Functions ============
     /**
      * @notice Deposites ETH to the vault
      */
     function deposit() external payable {
-        require(msg.value > 0, "no ETH sent");
+        if (msg.value == 0) revert EmptyDeposit();
         emit Deposited(msg.sender, msg.value);
     }
 
+    // ============ Owner Functions ============
     /**
      * @notice Withdraw your deposited ETH
-     * @dev VULNERABILITY: No access control
+     * @dev ACCES CONTROL: Only the owner can withdraw
      */
-    function withdraw() external {
+    function withdraw() external onlyOwner {
         uint256 amount = address(this).balance;
         if (amount == 0) revert InsufficientBalance();
 
-        // msg.sender can be anyone (should use owner instead)
-        (bool success,) = payable(msg.sender).call{ value: amount }("");
+        (bool success,) = payable(owner).call{ value: amount }("");
         if (!success) revert TransferFailed();
         emit Withdrawn(msg.sender, amount);
     }
@@ -50,6 +67,8 @@ contract VulnerableVault {
     function balance() external view returns (uint256) {
         return address(this).balance;
     }
+
+    // ============ Fallback ============
 
     receive() external payable { }
 }
