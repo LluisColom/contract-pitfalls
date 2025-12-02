@@ -2,10 +2,10 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import "../../src/v8/VulnerableVault.sol";
-import "../../src/v8/SafeVault.sol";
+import "../../src/v8/Vault.sol";
 
 contract AccessControl is Test {
+    Vault vault;
     address victim;
     address attacker;
     uint256 constant DEPOSIT_AMOUNT = 10 ether;
@@ -13,18 +13,19 @@ contract AccessControl is Test {
     function setUp() public {
         victim = makeAddr("victim");
         attacker = makeAddr("attacker");
+
+        // Deploy vault as victim
+        vm.startPrank(victim);
+        vault = new Vault();
+
+        // Victim deposits ETH into the vault
+        vm.deal(victim, 10 ether);
+        vault.deposit{ value: 10 ether }();
+        vm.stopPrank();
     }
 
     function test_1_AccessControlAttack() public {
         console.log("=== ACCESS CONTROL ATTACK DEMO ===\n");
-
-        // Deploy VulnerableVault as victim
-        vm.startPrank(victim);
-        VulnerableVault vault = new VulnerableVault();
-        // Victim stores ETH to the vault
-        vm.deal(victim, DEPOSIT_AMOUNT);
-        vault.deposit{ value: DEPOSIT_AMOUNT }();
-        vm.stopPrank();
 
         uint256 balanceBefore = attacker.balance;
         console.log("Vault balance before attack:", vault.balance() / 1e18, "ETH");
@@ -33,7 +34,7 @@ contract AccessControl is Test {
         console.log("\n[!] Executing access control attack...\n");
         vm.startPrank(attacker);
         // Attacker drains the vault
-        vault.withdraw();
+        vault.unsafe_withdraw();
         vm.stopPrank();
 
         uint256 balanceAfter = attacker.balance;
@@ -46,14 +47,6 @@ contract AccessControl is Test {
 
     function test_2_SafeAccessControl() public {
         console.log("=== ACCESS CONTROL ATTACK PREVENTION ===\n");
-
-        // Deploy SafeVault as victim
-        vm.startPrank(victim);
-        SafeVault vault = new SafeVault();
-        // Victim stores ETH to the vault
-        vm.deal(victim, DEPOSIT_AMOUNT);
-        vault.deposit{ value: DEPOSIT_AMOUNT }();
-        vm.stopPrank();
 
         uint256 balanceBefore = attacker.balance;
         console.log("Vault balance before attack:", vault.balance() / 1e18, "ETH");

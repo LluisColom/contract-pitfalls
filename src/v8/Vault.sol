@@ -3,17 +3,7 @@ pragma solidity ^0.8.20;
 
 import "forge-std/console.sol";
 
-/**
- * @title SafeVault
- * @notice A secure vault with proper access control
- * @dev Fixes vulnerabilities:
- *      - Implements access control on withdrawal
- *      - Uses custom errors for gas efficiency
- *      - Follows CEI pattern
- *      - Adds emergency pause functionality
- *      - Tracks deposits per user
- */
-contract SafeVault {
+contract Vault {
     // ============ State Variables ============
     address public immutable owner;
 
@@ -38,7 +28,6 @@ contract SafeVault {
         owner = msg.sender;
     }
 
-    // ============ User Functions ============
     /**
      * @notice Deposites ETH to the vault
      */
@@ -47,7 +36,20 @@ contract SafeVault {
         emit Deposited(msg.sender, msg.value);
     }
 
-    // ============ Owner Functions ============
+    /**
+     * @notice Withdraw your deposited ETH
+     * @dev VULNERABILITY: No access control
+     */
+    function unsafe_withdraw() external {
+        uint256 amount = address(this).balance;
+        if (amount == 0) revert InsufficientBalance();
+
+        // msg.sender can be anyone (should use owner instead)
+        (bool success,) = payable(msg.sender).call{ value: amount }("");
+        if (!success) revert TransferFailed();
+        emit Withdrawn(msg.sender, amount);
+    }
+
     /**
      * @notice Withdraw your deposited ETH
      * @dev ACCES CONTROL: Only the owner can withdraw
