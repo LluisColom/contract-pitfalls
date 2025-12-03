@@ -17,6 +17,12 @@ Educational demonstrations of common Solidity vulnerabilities using Foundry.
 5. **MEV (Miner Extractable Value) attacks** - Sandwich attack
 6. **Denial of Service** - Revert-based DoS and Unbounded Loop DoS
 
+## Prerequisites
+
+- **Foundry**: Download from https://getfoundry.sh/
+- **Solidity**: 0.8.20 (automatically installed by Foundry on first build)
+- **Infura API Key**: Required for mainnet fork tests (set in `.env` file)
+  
 ## Quick Start
 ### Environment Setup
 Create your INFURA RPC api key here:
