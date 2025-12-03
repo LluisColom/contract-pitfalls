@@ -1,16 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-/**
- * @title SafeLottery
- * @notice A secure one-time lottery implementation
- * @dev Fixes common vulnerabilities:
- *      - Uses pull pattern to prevent DoS
- *      - Implements access control
- *      - Follows CEI pattern for reentrancy protection
- *      - Uses Chainlink VRF for randomness (simulated here)
- */
-contract SafeLottery {
+contract Lottery {
     // ============ State Variables ============
     address public immutable owner;
     uint256 public constant ENTRY_FEE = 1 ether;
@@ -85,6 +76,28 @@ contract SafeLottery {
         // CEI Pattern: State updated before external call
         (bool success,) = payable(winner).call{ value: prize }("");
         if (!success) revert TransferFailed();
+    }
+
+    /**
+     * @notice UNSAFE: Push-based refund system
+     * @dev A single failure blocks all the refunds
+     */
+    function unsafe_cancel() external {
+        if (players.length == 0) revert NoPlayers();
+
+        // VULNERABILITY: Unbounded loop - can run out of gas
+        for (uint256 i = 0; i < players.length; i++) {
+            address player = players[i];
+
+            // VULNERABILITY: Push pattern - one failure blocks all refunds
+            (bool success,) = player.call{ value: 1 ether }("");
+            if (!success) revert TransferFailed();
+
+            emit RefundClaimed(msg.sender, ENTRY_FEE);
+        }
+
+        cancelled = true;
+        emit LotteryCancelled();
     }
 
     /**
