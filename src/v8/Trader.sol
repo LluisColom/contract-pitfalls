@@ -5,7 +5,7 @@ import "forge-std/console.sol";
 import "../interfaces/IERC20.sol";
 import "../interfaces/IUniswapV2Router02.sol";
 
-contract VulnerableTrader {
+contract Trader {
     IUniswapV2Router02 public immutable router;
     address public immutable WETH;
 
@@ -14,11 +14,10 @@ contract VulnerableTrader {
         WETH = _weth;
     }
 
-    function swapTokensVulnerable(
+    function unsafeSwapTokens(
         address tokenIn,
         address tokenOut,
-        uint256 amountIn,
-        uint256 minAmountOut // Minimum accepted (often set too low or to 0!)
+        uint256 amountIn
     )
         external
         returns (uint256)
@@ -31,14 +30,18 @@ contract VulnerableTrader {
         path[0] = tokenIn;
         path[1] = tokenOut;
 
-        // Execute swap - VULNERABLE to front-running!
+        // Execute swap - no slippage protection so VULNERABLE to front-running!
         uint256[] memory amounts = router.swapExactTokensForTokens(
-            amountIn, minAmountOut, path, address(this), block.timestamp + 300
+            amountIn,
+            0, // VULNERABILITY: minimum expected output should be calculated based on acceptable slippage
+            path,
+            address(this),
+            block.timestamp + 300
         );
 
         console.log("  ************* VICTIM SWAP *************");
         console.log("  Input: ", amountIn / 1e18, "DAI");
-        console.log("  Min expected:", minAmountOut, "WETH");
+        console.log("  Min expected:", 0, "WETH");
         console.log("  Received:", amounts[1] / 1e18, "WETH");
         console.log("  ***************************************\n");
         return amounts[1];
