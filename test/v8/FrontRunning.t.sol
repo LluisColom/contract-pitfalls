@@ -11,6 +11,9 @@ contract FrontRunning is Test {
     address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
 
+    uint256 constant VICTIM_AMOUNT = 50_000 ether; // Victim wants to swap 50K DAI
+    uint256 constant BOT_AMOUNT = 100_000 ether; // Bot uses 100K DAI to sandwich
+
     Trader public victim;
     SandwichBot public bot;
 
@@ -31,11 +34,22 @@ contract FrontRunning is Test {
         console.log("Fund with:", IERC20(DAI).balanceOf(address(bot)) / 1e18, "DAI");
     }
 
+    function expectedSwapOutput(uint256 amount, uint256 slippage) internal view returns (uint256) {
+        address[] memory path = new address[](2);
+        path[0] = DAI;
+        path[1] = WETH;
+        uint256[] memory expectedAmounts =
+            IUniswapV2Router02(UNISWAP_ROUTER).getAmountsOut(amount, path);
+
+        return (expectedAmounts[1] * (10_000 - slippage)) / 10_000;
+    }
+
     function test_1_SandwichAttack() public {
         console.log("\n=== SANDWICH ATTACK DEMO ===\n");
 
-        uint256 victimAmount = 50_000 ether; // Victim wants to swap 50K DAI
-        uint256 botAmount = 100_000 ether; // Bot uses 100K DAI to sandwich
+        // Calculate expected swap output BEFORE any manipulation
+        uint256 slippage = 0; // No slippage protection
+        uint256 expectedWETH = expectedSwapOutput(VICTIM_AMOUNT, slippage);
 
         uint256 initialBalance = IERC20(DAI).balanceOf(address(bot));
         console.log("[STEP 0] Initial state");
@@ -44,45 +58,40 @@ contract FrontRunning is Test {
         // Bot front-runs
         // In a real scenario, the bot would monitor the mempool and detect the victim's tx
         console.log("[STEP 1] Bot front-runs: Buy WETH to push price up\n");
-        uint256 wethBought = bot.frontRun(DAI, WETH, botAmount);
+        uint256 wethBought = bot.frontRun(DAI, WETH, BOT_AMOUNT);
 
         // Victim's swap
         // In a real scenario, the tx would be waiting in the mempool
         console.log("[STEP 2] Victim's swap executes at inflated price\n");
-        victim.swapTokens(DAI, WETH, victimAmount, 0); // NO SLIPPAGE PROTECTION!
+        victim.swapTokens(DAI, WETH, VICTIM_AMOUNT, 0); // NO SLIPPAGE PROTECTION!
 
         // Bot back-runs
         console.log("[STEP 3] Bot back-runs: Sell WETH for profit\n");
         bot.backRun(WETH, DAI, wethBought);
 
-        // Calculate profit
+        // Calculate profit and loss
         uint256 finalBalance = IERC20(DAI).balanceOf(address(bot));
         uint256 profit = finalBalance - initialBalance;
 
+        uint256 actualWETH = IERC20(WETH).balanceOf(address(victim));
+        uint256 victimLoss = expectedWETH - actualWETH;
+
         // Assertions
         assertGt(profit, 0, "Sandwich attack should be profitable");
+        assertGt(victimLoss, 0, "Victim must lose money");
 
         console.log("[STEP 4] Results\n");
+        console.log("  Victim loss %:", (victimLoss * 10_000) / expectedWETH, "bps");
         console.log("  Bot profit:", profit / 1e18, "DAI");
-        console.log("  Profit %:", (profit * 10_000) / botAmount, "bps");
+        console.log("  Bot profit %:", (profit * 10_000) / BOT_AMOUNT, "bps");
     }
 
     function test_2_SafeMev() public {
         console.log("\n=== SLIPPAGE PROTECTION DEMO ===\n");
 
-        uint256 victimAmount = 50_000 ether; // Victim wants to swap 50K DAI
-        uint256 botAmount = 100_000 ether; // Bot uses 100K DAI to sandwich
-        uint256 slippage = 50; // 0.5% slippage tolerance
-
-        // Victim calculates expected output BEFORE any manipulation
-        address[] memory path = new address[](2);
-        path[0] = DAI;
-        path[1] = WETH;
-        uint256[] memory expectedAmounts =
-            IUniswapV2Router02(UNISWAP_ROUTER).getAmountsOut(victimAmount, path);
-
-        // Victim calculates minimum acceptable swap output based on slippage tolerance
-        uint256 minAmountOut = (expectedAmounts[1] * (10_000 - slippage)) / 10_000;
+        // Victim calculates expected output BEFORE any manipulation (with slippage tolerance)
+        uint256 slippage = 50; // 0.5% slippage toleranceq
+        uint256 minAmountOut = expectedSwapOutput(VICTIM_AMOUNT, slippage);
 
         uint256 initialBalance = IERC20(DAI).balanceOf(address(bot));
         console.log("[STEP 0] Initial state");
@@ -92,13 +101,13 @@ contract FrontRunning is Test {
         // Bot front-runs
         // In a real scenario, the bot would monitor the mempool and detect the victim's tx
         console.log("[STEP 1] Bot front-runs: Buy WETH to push price up\n");
-        uint256 wethBought = bot.frontRun(DAI, WETH, botAmount);
+        uint256 wethBought = bot.frontRun(DAI, WETH, BOT_AMOUNT);
 
         // Victim's swap
         // In a real scenario, the tx would be waiting in the mempool
         console.log("[STEP 2] Victim's swap executes with slippage tolerance");
         vm.expectRevert(); // We expect this to revert
-        victim.swapTokens(DAI, WETH, victimAmount, minAmountOut); // SLIPPAGE PROTECTION!
+        victim.swapTokens(DAI, WETH, VICTIM_AMOUNT, minAmountOut); // SLIPPAGE PROTECTION!
         console.log("  Victim's transaction reverts due to the inflated price\n");
 
         // Bot back-runs
@@ -113,7 +122,8 @@ contract FrontRunning is Test {
         assertGt(loss, 0, "Attack should not be profitable");
 
         console.log("[STEP 4] Results\n");
+        console.log("  Victim loss %: 0 bps");
         console.log("  Bot loss:", loss / 1e18, "DAI");
-        console.log("  Loss %:", (loss * 10_000) / botAmount, "bps");
+        console.log("  Bot loss %:", (loss * 10_000) / BOT_AMOUNT, "bps");
     }
 }
