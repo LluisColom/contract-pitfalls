@@ -18,48 +18,53 @@ Educational demonstrations of common Solidity vulnerabilities using Foundry.
 6. **Denial of Service** - Revert-based DoS and Unbounded Loop DoS
 
 ## Quick Start
-Download Foundry: https://getfoundry.sh/introduction/installation/
-
-### Running Reentrancy Tests
-
-Use Solidity **0.7.6** (legacy profile) and **0.8.20**:
-
+### Environment Setup
 ```bash
-# Solidity 0.7.6
-FOUNDRY_PROFILE=legacy forge test --match-contract ReentrancyV7 -vvv
+# Install Foundry (if not already installed)
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
 
-# Solidity 0.8.20
-forge test --match-contract ReentrancyV8 -vvv
+# Create a .env file in the project root
+echo 'INFURA_URL=https://mainnet.infura.io/v3/YOUR_API_KEY' > .env
 ```
 
-### Running AccessControl Test
+Foundry automatically loads `.env` files when running tests.
+
+### Running Tests
+
+**Reentrancy Attack:**
 ```bash
-# Solidity 0.8.20
+forge test --match-contract Reentrancy -vvv
+```
+
+**Access Control Failures:**
+```bash
 forge test --match-contract AccessControl -vvv
 ```
 
-### Running WeakRandomness Test
+**Weak Randomness:**
 ```bash
-# Solidity 0.8.20
 forge test --match-contract WeakRandomness -vvv
 ```
 
-### Running OracleManipulation Test
+**Oracle Manipulation (requires mainnet fork):**
 ```bash
-# Solidity 0.8.20
 forge test --fork-url $INFURA_URL --match-contract OracleManipulation -vvv
 ```
 
-### Running MEV Test
+**MEV/Front-Running (requires mainnet fork):**
 ```bash
-# Solidity 0.8.20
 forge test --fork-url $INFURA_URL --match-contract FrontRunning -vvv
 ```
 
-### Running DenialOfService Test
+**Denial of Service (requires mainnet fork):**
 ```bash
-# Solidity 0.8.20
 forge test --fork-url $INFURA_URL --match-contract DenialOfService -vvv
+```
+
+### Run All Tests
+```bash
+forge test -vvv
 ```
 
 ## License
