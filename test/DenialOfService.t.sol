@@ -2,8 +2,8 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import "../../src/v8/Lottery.sol";
-import "../../src/attackers/MaliciousPlayer.sol";
+import "../src/Lottery.sol";
+import "../src/attackers/MaliciousPlayer.sol";
 
 contract DenialOfService is Test {
     uint256 constant PARTICIPANTS = 10;

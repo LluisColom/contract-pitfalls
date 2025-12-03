@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "../v8/Bank.sol";
+import "../Bank.sol";
 
 contract ReentrancyAttacker {
     Bank public bank;

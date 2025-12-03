@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import "../../src/v8/Lottery.sol";
+import "../src/Lottery.sol";
 
 contract WeakRandomness is Test {
     Lottery lottery;

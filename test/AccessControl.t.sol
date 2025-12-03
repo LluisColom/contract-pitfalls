@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import "../../src/v8/Vault.sol";
+import "../src/Vault.sol";
 
 contract AccessControl is Test {
     Vault vault;

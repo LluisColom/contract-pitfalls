@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/console.sol";
-import "../v8/VulnerableLending.sol";
+import "../VulnerableLending.sol";
 import "../interfaces/IUniswapV2Router02.sol";
 import "../interfaces/ILendingPool.sol";
 import "../interfaces/IERC20.sol";

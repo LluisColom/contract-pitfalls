@@ -2,9 +2,9 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/console.sol";
-import "../../src/attackers/OracleAttacker.sol";
-import "../interfaces/IUniswapV2Pair.sol";
-import "../interfaces/IERC20.sol";
+import "./attackers/OracleAttacker.sol";
+import "./interfaces/IUniswapV2Pair.sol";
+import "./interfaces/IERC20.sol";
 
 contract VulnerableLending {
     IUniswapV2Pair public immutable uniswapPair; // WETH/DAI pair

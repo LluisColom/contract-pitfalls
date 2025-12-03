@@ -2,10 +2,10 @@
 # DEFAULT PROFILE - Solidity 0.8.20 (Modern)
 # =============================================================================
 [profile.default]
-src = "src/v8"
+src = "src"
 out = "out"
 libs = ["lib"]
-test = "test/v8"
+test = "test"
 script = "script"
 cache_path = "cache"
 
@@ -21,34 +21,6 @@ verbosity = 3
 ffi = false
 gas_limit = 9223372036854775807
 gas_reports = ["*"]
-
-# =============================================================================
-# LEGACY PROFILE - Solidity 0.7.6 (Historical)
-# =============================================================================
-[profile.legacy]
-src = "src/v7"
-out = "out-legacy"
-libs = ["lib"]
-test = "test/v7"
-script = "script"
-cache_path = "cache-legacy"
-
-# Compiler settings
-solc = "0.7.6"
-evm_version = "istanbul"
-optimizer = true
-optimizer_runs = 200
-via_ir = false
-
-# Testing configuration
-verbosity = 3
-ffi = false
-gas_limit = 9223372036854775807
-gas_reports = ["*"]
-
-# =============================================================================
-# SHARED CONFIGURATION (applies to all profiles)
-# =============================================================================
 
 # RPC endpoints
 [rpc_endpoints]

@@ -3,8 +3,8 @@ pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "../../src/v8/Trader.sol";
-import "../../src/attackers/SandwichBot.sol";
+import "../src/Trader.sol";
+import "../src/attackers/SandwichBot.sol";
 
 contract FrontRunning is Test {
     address constant UNISWAP_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;

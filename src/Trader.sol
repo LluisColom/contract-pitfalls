@@ -2,8 +2,8 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/console.sol";
-import "../interfaces/IERC20.sol";
-import "../interfaces/IUniswapV2Router02.sol";
+import "./interfaces/IERC20.sol";
+import "./interfaces/IUniswapV2Router02.sol";
 
 contract Trader {
     IUniswapV2Router02 public immutable router;

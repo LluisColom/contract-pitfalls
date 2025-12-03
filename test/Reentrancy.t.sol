@@ -2,8 +2,8 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import "../../src/v8/Bank.sol";
-import "../../src/attackers/ReentrancyAttacker.sol";
+import "../src/Bank.sol";
+import "../src/attackers/ReentrancyAttacker.sol";
 
 contract ReentrancyV8 is Test {
     Bank public bank;
