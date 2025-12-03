@@ -64,6 +64,6 @@ contract WeakRandomness is Test {
         assertEq(lottery.winner(), attacker);
         assertEq(attacker.balance, 11 ether); // attacker wins 2 ETH pot
         console.log("  Attacker won the lottery");
-        console.log("  Attacker balance:", attacker.balance / 1e18, "ETH\n");
+        console.log("  Attacker balance:", attacker.balance / 1e18, "ETH");
     }
 }
