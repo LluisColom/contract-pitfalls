@@ -58,8 +58,25 @@ contract Lottery {
         emit PlayerJoined(msg.sender);
     }
 
+    /**
+     * @notice VULNERABILITY: Weak/Predictable Randomness
+     * @dev Uses on-chain data that can be predicted before transaction execution:
+     *      - block.timestamp: Known before mining
+     *      - block.prevrandao: Known once block is produced
+     *      - msg.sender: Controlled by caller
+     *
+     * Attack vector: Malicious actors can:
+     *      1. Simulate this function off-chain using current block data
+     *      2. Predict if they will win BEFORE joining
+     *      3. Only participate if guaranteed to win
+     *
+     * MITIGATION: Use Chainlink VRF (Verifiable Random Function)
+     *      - Provides cryptographically secure randomness from off-chain oracle
+     *      - Cannot be predicted or manipulated by miners/validators
+     *
+     * NOTE: This implementation is intentionally vulnerable for educational purposes
+     */
     function random() public view returns (uint256) {
-        // VULNERABILITY: Weak randomness — predictable BEFORE execution
         return uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, msg.sender)));
     }
 
