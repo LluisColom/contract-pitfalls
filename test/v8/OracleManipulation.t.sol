@@ -21,41 +21,41 @@ contract OracleManipulation is Test {
 
     function setUp() public {
         // Fork mainnet at a specific block for reproducibility
-        console.log("\n=== SETUP (Mainnet Fork) ===");
+        console.log("=== SETUP (Mainnet Fork) ===");
         vm.createSelectFork(vm.envString("INFURA_URL"), 23_000_000);
 
         // Check pair reserves
         (uint112 reserve0, uint112 reserve1,) = IUniswapV2Pair(WETH_DAI_PAIR).getReserves();
-        console.log("DAI reserves:", uint256(reserve0) / 1e18);
-        console.log("WETH reserves:", uint256(reserve1) / 1e18);
+        console.log("  Uniswap pool DAI reserves:", uint256(reserve0) / 1e18);
+        console.log("  Uniswap pool WETH reserves:", uint256(reserve1) / 1e18);
 
         // Deploy lending protocol
         lending = new VulnerableLending(WETH_DAI_PAIR, WETH, DAI);
-        console.log("VulnerableLending deployed");
-
-        // Fund lending with DAI (for borrowing)
-        deal(DAI, address(lending), 1_000_000 ether); // 1M DAI
-        console.log("Fund with:", IERC20(DAI).balanceOf(address(lending)) / 1e18, "DAI");
 
         // Check initial price
         uint256 initialPrice = lending.getETHPrice();
-        console.log("Initial ETH price:", initialPrice / 1e18, "DAI per ETH");
+        console.log("  Initial ETH price:", initialPrice / 1e18, "DAI per ETH");
+        console.log("  VulnerableLending deployed");
+
+        // Fund lending with DAI (for borrowing)
+        deal(DAI, address(lending), 1_000_000 ether); // 1M DAI
+        console.log("  Fund with:", IERC20(DAI).balanceOf(address(lending)) / 1e18, "DAI");
 
         // Deploy attacker contract
         vm.prank(attackerEOA);
         attacker =
             new OracleAttacker(payable(address(lending)), UNISWAP_ROUTER, AAVE_POOL, WETH, DAI);
-        console.log("OracleAttacker deployed");
+        console.log("  OracleAttacker deployed");
 
         // Fund attacker contract with ETH for collateral
         vm.deal(address(attacker), 20 ether);
-        console.log("Fund with:", address(attacker).balance / 1e18, "ETH");
+        console.log("  Fund with:", address(attacker).balance / 1e18, "ETH\n");
     }
 
     function testOracleManipulationAttack() public {
-        console.log("\n=== FLASH LOAN ORACLE MANIPULATION ===\n");
-        console.log("Attacker uses Aave flash loan for massive manipulation");
-        console.log("This is how real attacks work in production\n");
+        console.log("=== FLASH LOAN ORACLE MANIPULATION ===");
+        console.log("  Attacker uses Aave flash loan for massive manipulation");
+        console.log("  This is how real attacks work in production\n");
 
         // Record initial state
         uint256 priceInitial = lending.getETHPrice();
@@ -85,6 +85,6 @@ contract OracleManipulation is Test {
         console.log("[STEP 7] Results");
         console.log("  Final ETH price:", priceFinal / 1e18, "DAI per ETH");
         console.log("  Attacker borrowed", flashLoanAmount / 1e18, "WETH for free (flash loan)");
-        console.log("  Used it to manipulate price and steal", daiProfit / 1e18, "DAI\n");
+        console.log("  Used it to manipulate price and steal", daiProfit / 1e18, "DAI");
     }
 }
