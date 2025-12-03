@@ -14,8 +14,10 @@ contract ReentrancyV8 is Test {
     address public attackerAddr = makeAddr("attacker");
 
     function setUp() public {
+        console.log("=== SETUP ===");
         // Deploy bank
         bank = new Bank();
+        console.log("  Bank deployed\n");
 
         // Fund victims and make deposits
         vm.deal(victim1, 5 ether);
