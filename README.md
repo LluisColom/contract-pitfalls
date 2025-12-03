@@ -19,6 +19,9 @@ Educational demonstrations of common Solidity vulnerabilities using Foundry.
 
 ## Quick Start
 ### Environment Setup
+Create your INFURA RPC api key here:
+https://developer.metamask.io
+
 ```bash
 # Install Foundry (if not already installed)
 curl -L https://foundry.paradigm.xyz | bash
