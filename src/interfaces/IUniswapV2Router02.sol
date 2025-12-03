@@ -13,4 +13,13 @@ interface IUniswapV2Router02 {
         returns (uint256[] memory amounts);
 
     function WETH() external pure returns (address);
+
+    // View functions for calculating outputs
+    function getAmountsOut(
+        uint256 amountIn,
+        address[] calldata path
+    )
+        external
+        view
+        returns (uint256[] memory amounts);
 }

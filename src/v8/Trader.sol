@@ -14,10 +14,11 @@ contract Trader {
         WETH = _weth;
     }
 
-    function unsafeSwapTokens(
+    function swapTokens(
         address tokenIn,
         address tokenOut,
-        uint256 amountIn
+        uint256 amountIn,
+        uint256 minAmountOut // Unsafe if set to 0 or too low
     )
         external
         returns (uint256)
@@ -30,10 +31,10 @@ contract Trader {
         path[0] = tokenIn;
         path[1] = tokenOut;
 
-        // Execute swap - vulnerable to front-running!
+        // Execute swap with slippage protection (reverts if output < minAmountOut)
         uint256[] memory amounts = router.swapExactTokensForTokens(
             amountIn,
-            0, // VULNERABILITY: minimum expected output should be calculated based on acceptable slippage
+            minAmountOut, // Protection: rejects sandwich attacks
             path,
             address(this),
             block.timestamp + 300
@@ -41,9 +42,9 @@ contract Trader {
 
         console.log("  ************* VICTIM SWAP *************");
         console.log("  Input: ", amountIn / 1e18, "DAI");
-        console.log("  Min expected:", 0, "WETH");
+        console.log("  Min expected:", minAmountOut / 1e18, "WETH");
         console.log("  Received:", amounts[1] / 1e18, "WETH");
-        console.log("  ***************************************\n");
+        console.log("  *************************************\n");
         return amounts[1];
     }
 }
