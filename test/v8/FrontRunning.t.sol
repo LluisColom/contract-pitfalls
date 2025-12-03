@@ -11,6 +11,7 @@ contract FrontRunning is Test {
     address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
 
+    uint256 constant INITIAL_BALANCE = 200_000 ether;
     uint256 constant VICTIM_AMOUNT = 50_000 ether; // Victim wants to swap 50K DAI
     uint256 constant BOT_AMOUNT = 100_000 ether; // Bot uses 100K DAI to sandwich
 
@@ -24,12 +25,12 @@ contract FrontRunning is Test {
 
         // Deploy victim and bot contracts
         victim = new Trader(UNISWAP_ROUTER, WETH);
-        deal(DAI, address(victim), 100_000 ether);
+        deal(DAI, address(victim), INITIAL_BALANCE);
         console.log("Trader deployed");
         console.log("Fund with:", IERC20(DAI).balanceOf(address(victim)) / 1e18, "DAI");
 
         bot = new SandwichBot(UNISWAP_ROUTER);
-        deal(DAI, address(bot), 200_000 ether);
+        deal(DAI, address(bot), INITIAL_BALANCE);
         console.log("SandwichBot deployed");
         console.log("Fund with:", IERC20(DAI).balanceOf(address(bot)) / 1e18, "DAI");
     }
@@ -51,18 +52,16 @@ contract FrontRunning is Test {
         uint256 slippage = 0; // No slippage protection
         uint256 expectedWETH = expectedSwapOutput(VICTIM_AMOUNT, slippage);
 
-        uint256 initialBalance = IERC20(DAI).balanceOf(address(bot));
-        console.log("[STEP 0] Initial state");
-        console.log("  Bot initial balance:", initialBalance / 1e18, "tokens\n");
+        console.log("[STEP 0] Victim creates swap transaction without slippage protection");
+        console.log("  The transaction waits in the mempool");
+        console.log("  The attacker BOT monitors the mempool and detects it\n");
 
         // Bot front-runs
-        // In a real scenario, the bot would monitor the mempool and detect the victim's tx
         console.log("[STEP 1] Bot front-runs: Buy WETH to push price up\n");
         uint256 wethBought = bot.frontRun(DAI, WETH, BOT_AMOUNT);
 
         // Victim's swap
-        // In a real scenario, the tx would be waiting in the mempool
-        console.log("[STEP 2] Victim's swap executes at inflated price\n");
+        console.log("[STEP 2] Victim's swap is executed at inflated price\n");
         victim.swapTokens(DAI, WETH, VICTIM_AMOUNT, 0); // NO SLIPPAGE PROTECTION!
 
         // Bot back-runs
@@ -71,44 +70,41 @@ contract FrontRunning is Test {
 
         // Calculate profit and loss
         uint256 finalBalance = IERC20(DAI).balanceOf(address(bot));
-        uint256 profit = finalBalance - initialBalance;
+        uint256 botProfit = finalBalance - INITIAL_BALANCE;
 
         uint256 actualWETH = IERC20(WETH).balanceOf(address(victim));
         uint256 victimLoss = expectedWETH - actualWETH;
 
         // Assertions
-        assertGt(profit, 0, "Sandwich attack should be profitable");
+        assertGt(botProfit, 0, "Sandwich attack should be profitable");
         assertGt(victimLoss, 0, "Victim must lose money");
 
-        console.log("[STEP 4] Results\n");
+        console.log("[STEP 4] Results");
         console.log("  Victim loss %:", (victimLoss * 10_000) / expectedWETH, "bps");
-        console.log("  Bot profit:", profit / 1e18, "DAI");
-        console.log("  Bot profit %:", (profit * 10_000) / BOT_AMOUNT, "bps");
+        console.log("  Bot profit:", botProfit / 1e18, "DAI");
+        console.log("  Bot profit %:", (botProfit * 10_000) / BOT_AMOUNT, "bps");
     }
 
     function test_2_SafeMev() public {
         console.log("\n=== SLIPPAGE PROTECTION DEMO ===\n");
 
         // Victim calculates expected output BEFORE any manipulation (with slippage tolerance)
-        uint256 slippage = 50; // 0.5% slippage toleranceq
+        uint256 slippage = 50; // 0.5% slippage tolerance
         uint256 minAmountOut = expectedSwapOutput(VICTIM_AMOUNT, slippage);
 
-        uint256 initialBalance = IERC20(DAI).balanceOf(address(bot));
-        console.log("[STEP 0] Initial state");
-        console.log("  Bot initial balance:", initialBalance / 1e18, "tokens");
-        console.log("  Minimum expected swap output is:", minAmountOut / 1e18, "WETH\n");
+        console.log("[STEP 0] Victim creates swap transaction with 0.5% slippage tolerance");
+        console.log("  The transaction waits in the mempool");
+        console.log("  The attacker BOT monitors the mempool and detects it\n");
 
         // Bot front-runs
-        // In a real scenario, the bot would monitor the mempool and detect the victim's tx
         console.log("[STEP 1] Bot front-runs: Buy WETH to push price up\n");
         uint256 wethBought = bot.frontRun(DAI, WETH, BOT_AMOUNT);
 
         // Victim's swap
-        // In a real scenario, the tx would be waiting in the mempool
-        console.log("[STEP 2] Victim's swap executes with slippage tolerance");
+        console.log("[STEP 2] Victim's swap is executed at inflated price");
         vm.expectRevert(); // We expect this to revert
         victim.swapTokens(DAI, WETH, VICTIM_AMOUNT, minAmountOut); // SLIPPAGE PROTECTION!
-        console.log("  Victim's transaction reverts due to the inflated price\n");
+        console.log("  Victim's transaction reverts due to slippage\n");
 
         // Bot back-runs
         console.log("[STEP 3] Bot back-runs: Sell WETH for profit\n");
@@ -116,14 +112,14 @@ contract FrontRunning is Test {
 
         // Calculate loss
         uint256 finalBalance = IERC20(DAI).balanceOf(address(bot));
-        uint256 loss = initialBalance - finalBalance;
+        uint256 botLoss = INITIAL_BALANCE - finalBalance;
 
         // Assertions
-        assertGt(loss, 0, "Attack should not be profitable");
+        assertGt(botLoss, 0, "Attack should not be profitable");
 
-        console.log("[STEP 4] Results\n");
+        console.log("[STEP 4] Results");
         console.log("  Victim loss %: 0 bps");
-        console.log("  Bot loss:", loss / 1e18, "DAI");
-        console.log("  Bot loss %:", (loss * 10_000) / BOT_AMOUNT, "bps");
+        console.log("  Bot loss:", botLoss / 1e18, "DAI");
+        console.log("  Bot loss %:", (botLoss * 10_000) / BOT_AMOUNT, "bps");
     }
 }
