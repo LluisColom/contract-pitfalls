@@ -46,7 +46,7 @@ contract FrontRunning is Test {
     }
 
     function test_1_SandwichAttack() public {
-        console.log("\n=== SANDWICH ATTACK DEMO ===\n");
+        console.log("\n=== SANDWICH ATTACK DEMO ===");
 
         // Calculate expected swap output BEFORE any manipulation
         uint256 slippage = 0; // No slippage protection
@@ -86,7 +86,7 @@ contract FrontRunning is Test {
     }
 
     function test_2_SafeMev() public {
-        console.log("\n=== SLIPPAGE PROTECTION DEMO ===\n");
+        console.log("\n=== SLIPPAGE PROTECTION DEMO ===");
 
         // Victim calculates expected output BEFORE any manipulation (with slippage tolerance)
         uint256 slippage = 50; // 0.5% slippage tolerance
