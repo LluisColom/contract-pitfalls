@@ -30,7 +30,7 @@ contract Trader {
         path[0] = tokenIn;
         path[1] = tokenOut;
 
-        // Execute swap - no slippage protection so VULNERABLE to front-running!
+        // Execute swap - vulnerable to front-running!
         uint256[] memory amounts = router.swapExactTokensForTokens(
             amountIn,
             0, // VULNERABILITY: minimum expected output should be calculated based on acceptable slippage
