@@ -32,7 +32,7 @@ contract DenialOfService is Test {
     }
 
     function test_1_UnboundedLoopDoS() public {
-        console.log("=== UNBOUNDED LOOP DoS ATTACK ===\n");
+        console.log("=== UNBOUNDED LOOP DoS ATTACK ===");
 
         console.log("  Total players:", lottery.getPlayers().length);
         console.log("  Cancelling lottery...");
@@ -48,7 +48,7 @@ contract DenialOfService is Test {
     }
 
     function test_2_RevertBasedDoS() public {
-        console.log("=== REVERT-BASED DoS ATTACK ===\n");
+        console.log("=== REVERT-BASED DoS ATTACK ===");
 
         // Attack: Add a player that will revert on refund
         joinMaliciousPlayer();
@@ -64,7 +64,7 @@ contract DenialOfService is Test {
     }
 
     function test_3_SafeDoS() public {
-        console.log("=== SAFE LOTTERY DoS PREVENTION ===\n");
+        console.log("=== SAFE LOTTERY DoS PREVENTION ===");
 
         // Attack: Add a malicious player
         joinMaliciousPlayer();
