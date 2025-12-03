@@ -18,8 +18,9 @@ contract DenialOfService is Test {
     }
 
     function setUp() public {
+        console.log("=== SETUP ===");
         lottery = new Lottery();
-        console.log("  Lottery deployed");
+        console.log("  Lottery deployed\n");
 
         // Add initial participants
         for (uint256 i = 0; i < PARTICIPANTS; i++) {

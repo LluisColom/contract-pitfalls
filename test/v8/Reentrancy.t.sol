@@ -32,7 +32,7 @@ contract ReentrancyV8 is Test {
         vm.deal(address(attacker), 1 ether);
     }
 
-    function testUnsafeWithdraw() public {
+    function test_1_ReentrancyAttack() public {
         console.log("=== REENTRANCY ATTACK DEMO ===\n");
 
         uint256 bankBalanceBefore = address(bank).balance;
@@ -57,7 +57,7 @@ contract ReentrancyV8 is Test {
         assertGt(attackerBalanceAfter, attackerBalanceBefore, "Attacker should profit");
     }
 
-    function test_SafeWithdraw() public {
+    function test_2_SafeReentrancy() public {
         console.log("=== REENTRANCY ATTACK MIGITATION ===\n");
 
         uint256 bankBalanceBefore = address(bank).balance;
