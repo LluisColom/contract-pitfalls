@@ -39,7 +39,7 @@ contract AccessControl is Test {
         // Attacker drains the vault
         vault.unsafe_withdraw();
         vm.stopPrank();
-        console.log("  Reentrancy attack is successful\n");
+        console.log("  Access control attack is successful\n");
 
         console.log("[STEP 2] Results");
         uint256 balanceAfter = attacker.balance;
@@ -51,7 +51,7 @@ contract AccessControl is Test {
     }
 
     function test_2_SafeAccessControl() public {
-        console.log("=== ACCESS CONTROL ATTACK PREVENTION ===");
+        console.log("=== ACCESS CONTROL ATTACK MIGITATION ===");
 
         console.log("[STEP 0] Initial state");
         uint256 balanceBefore = attacker.balance;
@@ -65,7 +65,7 @@ contract AccessControl is Test {
         // Attacker tries to drain the vault
         vault.withdraw();
         vm.stopPrank();
-        console.log("  Reentrancy attack refused\n");
+        console.log("  Access control attack refused\n");
 
         console.log("[STEP 2] Results");
         uint256 balanceAfter = attacker.balance;

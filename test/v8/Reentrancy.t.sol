@@ -33,24 +33,24 @@ contract ReentrancyV8 is Test {
     }
 
     function test_1_ReentrancyAttack() public {
-        console.log("=== REENTRANCY ATTACK DEMO ===\n");
+        console.log("=== REENTRANCY ATTACK DEMO ===");
 
+        console.log("[STEP 0] Initial state");
         uint256 bankBalanceBefore = address(bank).balance;
         uint256 attackerBalanceBefore = address(attacker).balance;
+        console.log("  Bank balance:", bankBalanceBefore / 1e18, "ETH");
+        console.log("  Attacker balance:", attackerBalanceBefore / 1e18, "ETH\n");
 
-        console.log("Bank balance before attack:", bankBalanceBefore / 1e18, "ETH");
-        console.log("Attacker balance before:   ", attackerBalanceBefore / 1e18, "ETH");
-
-        // Execute attack
-        console.log("\n[!] Executing reentrancy attack...\n");
+        console.log("[STEP 1] Execute reentrancy attack");
         attacker.attack{ value: 1 ether }(false); // Attack vulnerable withdraw function
+        console.log("  Reentrancy attack is successful\n");
 
+        console.log("[STEP 2] Results");
         uint256 bankBalanceAfter = address(bank).balance;
         uint256 attackerBalanceAfter = address(attacker).balance;
-
-        console.log("Bank balance after attack: ", bankBalanceAfter / 1e18, "ETH");
-        console.log("Attacker balance after:    ", attackerBalanceAfter / 1e18, "ETH");
-        console.log("\n Attacker drained", (bankBalanceBefore - bankBalanceAfter) / 1e18, "ETH!");
+        console.log("  Bank balance:", bankBalanceAfter / 1e18, "ETH");
+        console.log("  Attacker balance:", attackerBalanceAfter / 1e18, "ETH");
+        console.log("  Attacker drained:", (bankBalanceBefore - bankBalanceAfter) / 1e18, "ETH");
 
         // Assertions
         assertEq(bankBalanceAfter, 0, "Bank should be drained");
@@ -58,25 +58,26 @@ contract ReentrancyV8 is Test {
     }
 
     function test_2_SafeReentrancy() public {
-        console.log("=== REENTRANCY ATTACK MIGITATION ===\n");
+        console.log("=== REENTRANCY ATTACK MIGITATION ===");
 
+        console.log("[STEP 0] Initial state");
         uint256 bankBalanceBefore = address(bank).balance;
         uint256 attackerBalanceBefore = address(attacker).balance;
+        console.log("  Bank balance", bankBalanceBefore / 1e18, "ETH");
+        console.log("  Attacker balance", attackerBalanceBefore / 1e18, "ETH\n");
 
-        console.log("Bank balance before attack:", bankBalanceBefore / 1e18, "ETH");
-        console.log("Attacker balance before:   ", attackerBalanceBefore / 1e18, "ETH");
-
-        // Execute attack
-        console.log("\n[!] Executing reentrancy attack...\n");
+        console.log("[STEP 1] Execute reentrancy attack");
         vm.expectRevert(); // Expect revert due to reentrancy guard
         attacker.attack{ value: 1 ether }(true); // Attack safe withdraw function
+        console.log("  Reentrancy attack refused\n");
 
+        console.log("[STEP 2] Results");
         uint256 bankBalanceAfter = address(bank).balance;
         uint256 attackerBalanceAfter = address(attacker).balance;
 
-        console.log("Bank balance after attack: ", bankBalanceAfter / 1e18, "ETH");
-        console.log("Attacker balance after:    ", attackerBalanceAfter / 1e18, "ETH");
-        console.log("\n Attacker drained", (bankBalanceBefore - bankBalanceAfter) / 1e18, "ETH!");
+        console.log("  Bank balance:", bankBalanceAfter / 1e18, "ETH");
+        console.log("  Attacker balance:", attackerBalanceAfter / 1e18, "ETH");
+        console.log("  Attacker drained:", (bankBalanceBefore - bankBalanceAfter) / 1e18, "ETH");
 
         // Assertions
         assertEq(bankBalanceAfter - bankBalanceBefore, 0, "Bank should be intact");
